@@ -5,7 +5,14 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { syncItemAddons, syncItemImages } from "@/lib/itemRelations";
-import type { AddonDraft, Category, ImageDraft, Item, ItemFormValues } from "@/types/menu";
+import type {
+    AddonDraft,
+    Category,
+    ExtraGroup,
+    ImageDraft,
+    Item,
+    ItemFormValues,
+} from "@/types/menu";
 import FormField from "./FormField";
 import ImageListUploader from "./ImageListUploader";
 import AddonsEditor from "./AddonsEditor";
@@ -13,12 +20,14 @@ import AddonsEditor from "./AddonsEditor";
 type ItemFormProps = {
     item?: Item;
     categories: Category[];
+    extraGroups: ExtraGroup[];
 };
 
-export default function ItemForm({ item, categories }: ItemFormProps) {
+export default function ItemForm({ item, categories, extraGroups }: ItemFormProps) {
     const router = useRouter();
     const [errorMessage, setErrorMessage] = useState("");
     const [isSaving, setIsSaving] = useState(false);
+    const [pickerValue, setPickerValue] = useState("");
     const [values, setValues] = useState<ItemFormValues>({
         category_id: item?.category_id ?? categories[0]?.id ?? "",
         name_ar: item?.name_ar ?? "",
@@ -52,6 +61,28 @@ export default function ItemForm({ item, categories }: ItemFormProps) {
         value: ItemFormValues[Key]
     ) => {
         setValues((previous) => ({ ...previous, [key]: value }));
+    };
+
+    const addFromGroup = (groupId: string) => {
+        const group = extraGroups.find((current) => current.id === groupId);
+        setPickerValue("");
+
+        if (!group) return;
+
+        const existingNames = addons.map((addon) => addon.name_ar.trim());
+
+        const newDrafts: AddonDraft[] = [...group.extra_group_options]
+            .sort((first, second) => first.sort_order - second.sort_order)
+            .filter((option) => !existingNames.includes(option.name_ar.trim()))
+            .map((option) => ({
+                key: crypto.randomUUID(),
+                name_ar: option.name_ar,
+                name_en: option.name_en ?? "",
+                price: String(option.price),
+                is_active: option.is_active,
+            }));
+
+        setAddons((previous) => [...previous, ...newDrafts]);
     };
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -207,6 +238,26 @@ export default function ItemForm({ item, categories }: ItemFormProps) {
                 folder="items"
                 onChange={setImages}
             />
+
+            {extraGroups.length > 0 && (
+                <FormField
+                    label="إضافة من مجموعة محفوظة"
+                    hint="بتنزل خيارات المجموعة بخانة الإضافات تحت، وبتقدر تعدّلها لهالصنف"
+                >
+                    <select
+                        className="form-input"
+                        value={pickerValue}
+                        onChange={(event) => addFromGroup(event.target.value)}
+                    >
+                        <option value="">اختر مجموعة...</option>
+                        {extraGroups.map((group) => (
+                            <option key={group.id} value={group.id}>
+                                {group.name_ar} ({group.extra_group_options.length})
+                            </option>
+                        ))}
+                    </select>
+                </FormField>
+            )}
 
             <AddonsEditor addons={addons} onChange={setAddons} />
 

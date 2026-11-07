@@ -9,6 +9,7 @@ const navLinks = [
     { href: "/", label: "لوحة التحكم" },
     { href: "/categories", label: "الأقسام" },
     { href: "/items", label: "الأصناف" },
+    { href: "/extra-groups", label: "مجموعات الإضافات" },
 ];
 
 export default function AdminShell({ children }: { children: ReactNode }) {

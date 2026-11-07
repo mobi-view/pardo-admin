@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import type { Category, Item } from "@/types/menu";
+import type { Category, ExtraGroup, Item } from "@/types/menu";
 import PageHeader from "@/components/PageHearder";
 import ItemForm from "@/components/ItemForm";
 
@@ -11,6 +11,7 @@ export default function EditItemPage() {
     const { id } = useParams<{ id: string }>();
     const [item, setItem] = useState<Item | null>(null);
     const [categories, setCategories] = useState<Category[]>([]);
+    const [extraGroups, setExtraGroups] = useState<ExtraGroup[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -21,9 +22,11 @@ export default function EditItemPage() {
                 .eq("id", id)
                 .single(),
             supabase.from("categories").select("*").order("sort_order"),
-        ]).then(([itemResult, categoriesResult]) => {
+            supabase.from("extra_groups").select("*, extra_group_options(*)").order("sort_order"),
+        ]).then(([itemResult, categoriesResult, groupsResult]) => {
             setItem(itemResult.data as Item | null);
             setCategories((categoriesResult.data as Category[]) ?? []);
+            setExtraGroups((groupsResult.data as ExtraGroup[]) ?? []);
             setIsLoading(false);
         });
     }, [id]);
@@ -33,7 +36,14 @@ export default function EditItemPage() {
             <PageHeader title="تعديل صنف" />
             {isLoading && <p>جاري التحميل...</p>}
             {!isLoading && !item && <p className="empty-state">الصنف غير موجود</p>}
-            {item && <ItemForm key={item.id} item={item} categories={categories} />}
+            {item && (
+                <ItemForm
+                    key={item.id}
+                    item={item}
+                    categories={categories}
+                    extraGroups={extraGroups}
+                />
+            )}
         </>
     );
 }

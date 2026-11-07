@@ -129,6 +129,18 @@
     width: fit-content;
 }
 
+.group-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px;
+    border-radius: 12px;
+    background: var(--cream);
+}
+
+.group-picker-row {
+    min-height: 40px;
+}
 @container (min-width: 420px) {
     .addon-editor-row {
         grid-template-columns: repeat(2, minmax(0, 1fr));

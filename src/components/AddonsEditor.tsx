@@ -6,9 +6,18 @@ import type { AddonDraft } from "@/types/menu";
 type AddonsEditorProps = {
     addons: AddonDraft[];
     onChange: (addons: AddonDraft[]) => void;
+    label?: string;
+    addLabel?: string;
+    emptyLabel?: string;
 };
 
-export default function AddonsEditor({ addons, onChange }: AddonsEditorProps) {
+export default function AddonsEditor({
+    addons,
+    onChange,
+    label = "الإضافات (Extras)",
+    addLabel = "+ إضافة خيار",
+    emptyLabel = "ما في إضافات لهذا الصنف",
+}: AddonsEditorProps) {
     const updateAddon = (index: number, changes: Partial<AddonDraft>) => {
         onChange(
             addons.map((addon, addonIndex) =>
@@ -30,10 +39,10 @@ export default function AddonsEditor({ addons, onChange }: AddonsEditorProps) {
 
     return (
         <div className="form-field">
-            <span className="form-label">الإضافات (Extras)</span>
+            <span className="form-label">{label}</span>
 
             <div className="addons-editor">
-                {addons.length === 0 && <span className="form-hint">ما في إضافات لهذا الصنف</span>}
+                {addons.length === 0 && <span className="form-hint">{emptyLabel}</span>}
 
                 {addons.map((addon, index) => (
                     <div className="addon-editor-row" key={addon.key}>
@@ -101,7 +110,7 @@ export default function AddonsEditor({ addons, onChange }: AddonsEditorProps) {
                 ))}
 
                 <button type="button" className="secondary-button add-row-button" onClick={addAddon}>
-                    + إضافة خيار
+                    {addLabel}
                 </button>
             </div>
         </div>

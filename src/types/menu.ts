@@ -48,6 +48,7 @@ export type Item = {
     is_active: boolean;
     item_images: ItemImage[];
     item_addons: ItemAddon[];
+     
 };
 
 export type ItemFormValues = {
@@ -74,4 +75,27 @@ export type AddonDraft = {
     name_en: string;
     price: string;
     is_active: boolean;
+};
+
+export type ExtraGroupOption = {
+    id: string;
+    name_ar: string;
+    name_en: string | null;
+    price: number;
+    sort_order: number;
+    is_active: boolean;
+};
+
+export type ExtraGroup = {
+    id: string;
+    name_ar: string;
+    name_en: string | null;
+    sort_order: number;
+    extra_group_options: ExtraGroupOption[];
+};
+
+export type ExtraGroupFormValues = {
+    name_ar: string;
+    name_en: string;
+    sort_order: number;
 };
